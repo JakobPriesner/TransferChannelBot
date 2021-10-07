@@ -5,6 +5,7 @@ import uuid
 import requests
 import discord
 import logging
+from datetime import datetime
 
 
 class MyClient(discord.Client):
@@ -18,7 +19,10 @@ class MyClient(discord.Client):
         elif message.content.startswith('!save channel'):
             await self.save_messages_in_channel(message.channel)
         elif message.content.startswith('!save all channels'):
+            start_time = datetime.now()
             await self.save_all_cahnnel_messages(message.guild, message.channel)
+            end_time = datetime.now()
+            logging.info(f'Started with saving at {start_time} and stopped at {end_time}. So it took {(end_time-start_time).total_seconds()}')
         elif message.content.startswith('!push channel'):
             # filter the named channel out of the user_input
             split_message = message.content.split(' ')
@@ -35,7 +39,7 @@ class MyClient(discord.Client):
                 else:
                     await self.push_messages_of_one_channel(from_channel, message.channel)
         elif message.content.startswith('!push all channels'):
-            await message.channel.send('Wichtig: Die Namen der Channel der gespeicherten Nachrichten müssen den Namen auf dem Zielserver entsprehen!')
+            await message.channel.send('Wichtig: Die Namen der Channel der gespeicherten Nachrichten müssen den Namen auf dem Zielserver entsprechen!')
             await self.push_all_channels(message.guild.channels)
 
     async def save_all_cahnnel_messages(self, cl, origin_channel):
@@ -61,10 +65,11 @@ class MyClient(discord.Client):
                         else:
                             if url[0:26] == 'https://cdn.discordapp.com':
                                 r = requests.get(url, stream=True)
-                                imageName = str(uuid.uuid4()) + '.jpg'
-                                with open('img/' + imageName, 'wb') as out_file:
+                                imageName = str(uuid.uuid4()) + '.' + url.rsplit('.', 1)[1].lower()
+                                with open('files/' + imageName, 'wb') as out_file:
                                     shutil.copyfileobj(r.raw, out_file)
-                                    content = '\IMAGEFILE: ' + imageName
+                                    # save text and file
+                                    content += '\n\FILE: ' + imageName
                         try:
                             file.write(str(m.author.nick) + content + '\n')
                         except UnicodeEncodeError:
@@ -124,11 +129,13 @@ class MyClient(discord.Client):
                             # else send this message to the channel
                             else:
                                 # build message
+                                if '! save' in next_message or '! push' in next_message:
+                                    continue
                                 if 'schrieb: ' in next_message:
                                     next_message = next_message.split('schrieb: ')
                                     author = '**' + next_message[0] + '** \n'
                                     message_length += len(author)
-                                    if message_length >= 4000:
+                                    if message_length >= 2000:
                                         logging.info(f'send Message with length({message_length}) and content({temp_message})')
                                         await target_channel.send(temp_message)
                                         time.sleep(1)
@@ -139,20 +146,20 @@ class MyClient(discord.Client):
                                         message_length += len(temp_message)
                                         temp_message += author
                                     next_message = next_message[1]
-                                if next_message.startswith('\IMAGEFILE: '):
-                                    logging.info(f'send Message with length({message_length}) and content({temp_message})')
-                                    await target_channel.send(temp_message)
+                                if next_message.startswith('\FILE: '):
+                                    if temp_message != '' and temp_message is not None and temp_message != '\n':
+                                        await target_channel.send(temp_message)
                                     temp_message = ''
                                     message_length = 0
-                                    picture_name = next_message.replace('\IMAGEFILE: ', '').replace('\n', '')
+                                    picture_name = next_message.replace('\FILE: ', '').replace('\n', '')
                                     logging.info(f'send Message with length({message_length}) and content({temp_message})')
-                                    await target_channel.send(file=discord.File('img/'+picture_name))
+                                    await target_channel.send(file=discord.File('files/'+picture_name))
                                     time.sleep(1)
 
                                 else:
                                     message_length += len(author)
                                     # If the length of the message is greater than the max length of discord
-                                    if message_length >= 4000:
+                                    if message_length >= 2000:
                                         # send messages, reset counter (message_length) and set the next message
                                         # to the new message_container
                                         if temp_message is not None and temp_message != '':
@@ -177,4 +184,4 @@ if __name__ == "__main__":
     )
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     client = MyClient()
-    client.run('') # Your Bot token
+    client.run('ODkzOTczMTE1MDE1NjY3NzMy.YVjPVw.v_VZt0LkCmYvWJRdgN3sekB9E0M')
