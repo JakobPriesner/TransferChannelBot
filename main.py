@@ -184,4 +184,5 @@ if __name__ == "__main__":
     )
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     client = MyClient()
-    client.run('')
+        with open('bot-token.txt', 'r') as file:
+        client.run(file.readline())
