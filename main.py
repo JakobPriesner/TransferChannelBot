@@ -184,4 +184,4 @@ if __name__ == "__main__":
     )
     logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
     client = MyClient()
-    client.run('ODkzOTczMTE1MDE1NjY3NzMy.YVjPVw.v_VZt0LkCmYvWJRdgN3sekB9E0M')
+    client.run('')
