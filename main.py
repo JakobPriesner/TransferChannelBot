@@ -1,13 +1,16 @@
 import shutil
 import sys
-import time
+import asyncio
 import uuid
 import requests
 import discord
+from discord import Intents
 import logging
+import configparser
 from datetime import datetime
 
-from discord import Intents
+config = configparser.ConfigParser()
+config.read('config.ini')
 
 logging.basicConfig(
     filename='myLog.log',
@@ -61,7 +64,7 @@ async def save_all_channels(guild, origin_channel):
     for channel in guild.channels:
         if str(channel.type) == 'text':
             await save_messages_in_channel(channel)
-            time.sleep(3)
+            await asyncio.sleep(3)
     await origin_channel.send('Nachrichten wurden erfolgreich gespeichert!')
     end_time = datetime.now()
     logging.info(f'Started with saving at {start_time} and stopped at {end_time}.'
@@ -160,7 +163,7 @@ async def build_message(line, temp_message, message_length, target_channel):
         author_formatted = f'**{author}**\n'
         if message_length + len(author_formatted) >= 2000:
             await target_channel.send(temp_message)
-            time.sleep(1)
+            await asyncio.sleep(1)
             temp_message = author_formatted
             message_length = len(author_formatted)
         else:
@@ -174,7 +177,7 @@ async def build_message(line, temp_message, message_length, target_channel):
         return '', 0
     if message_length + len(line) >= 2000:
         await target_channel.send(temp_message)
-        time.sleep(1)
+        await asyncio.sleep(1)
         return line, len(line)
     return temp_message + line, message_length + len(line)
 
@@ -188,5 +191,5 @@ def get_channel_by_name(guild, name):
 
 
 if __name__ == "__main__":
-    with open('bot-token.txt', 'r') as file:
-        client.run(file.readline())
+    token = config['discord']['token']
+    client.run(token)

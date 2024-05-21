@@ -29,36 +29,28 @@ SaveChannelBot is a Discord bot that allows users to save and push messages from
 ### Steps
 
 1. Clone the repository:
-   \`\`\`bash
+   ```bash
    git clone https://github.com/yourusername/SaveChannelBot.git
    cd SaveChannelBot
-   \`\`\`
+   ```
 
 2. Create and activate a virtual environment (optional but recommended):
-   \`\`\`bash
+   ```bash
    python -m venv venv
    source venv/bin/activate   # On Windows use \`venv\\Scripts\\activate\`
-   \`\`\`
+   ```
 
 3. Install the required dependencies:
-   \`\`\`bash
+   ```bash
    pip install -r requirements.txt
-   \`\`\`
+   ```
 
-4. Create a \`bot-token.txt\` file in the root directory and add your Discord bot token:
-   \`\`\`plaintext
-   YOUR_BOT_TOKEN_HERE
-   \`\`\`
+4. Insert your Discord bot token into the config.ini:
 
-5. Create a \`files\` directory in the root directory to store message attachments:
-   \`\`\`bash
-   mkdir files
-   \`\`\`
-
-6. Run the bot:
-   \`\`\`bash
-   python save_channel_bot.py
-   \`\`\`
+5. Run the bot:
+   ```bash
+   python main.py
+   ```
 
 ## Logging
 
